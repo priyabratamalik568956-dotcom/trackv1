@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>म्यूज़िक के साथ SMM ट्रैकर (SMM Tracker with Music)</title>
+<!-- M PLUS Rounded 1c for a cute, 'Kawaii' aesthetic -->
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+<!-- Tone.js for reliable, programmatic sound generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  /* Base Styles for the Kawaii Look */
+  body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    /* Soft pastel gradient from light pink to lavender */
+    background: linear-gradient(135deg, #fcc8d1 0%, #d1c4e9 100%);
+    padding: 20px;
+    color: #333333; /* Dark text for high contrast on light background */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    /* Subtle star/glitter background pattern */
+    background-image: radial-gradient(#ffffff55 1px, transparent 0), radial-gradient(#ffffff55 1px, transparent 0);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+  
+  /* Header Styling - Cute and Bubbly */
+  h1 {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 900;
+    color: #ff5c77; /* Vibrant pink */
+    text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px rgba(0,0,0,0.1); /* Bubble effect */
+    margin-bottom: 25px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 15px rgba(255, 92, 119, 0.4);
+    display: inline-block;
+  }
+
+  /* Container for inputs and buttons */
+  .input-container {
+    text-align: center;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Input and Button base styling */
+  input, button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 30px; /* Highly rounded for bubble effect */
+    border: 2px solid #ff5c77;
+    margin: 10px 8px;
+    outline: none;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: 700;
+  }
+  
+  /* Input specific styling */
+  input {
+    width: 250px;
+    text-align: center;
+    background-color: #fff;
+    color: #333;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+  }
+  input::placeholder {
+    color: #ff5c7777;
+  }
+  input:focus {
+    border-color: #ff5c77;
+    box-shadow: 0 0 10px rgba(255, 92, 119, 0.6);
+  }
+
+  /* Button specific styling */
+  button {
+    background: linear-gradient(180deg, #ff8a99 0%, #ff5c77 100%);
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 5px 0 0 #d94a61; /* 3D press effect base */
+    transition: all 0.1s ease;
+  }
+  button:active {
+    box-shadow: 0 1px 0 0 #d94a61; /* Button pressed */
+    transform: translateY(4px);
+  }
+
+  /* Table Styling */
+  table {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.95); /* Light, translucent background */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border: 3px solid #ff5c77; /* Pink border */
+  }
+  th, td {
+    padding: 15px 10px;
+    text-align: center;
+    border: none;
+  }
+  
+  /* Table Header */
+  th {
+    background: #ff5c77;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+  }
+  
+  /* Table Row Striping */
+  tbody tr:nth-child(even) {
+    background-color: #fce4ec; /* Very light pink stripe */
+  }
+  tbody tr:hover {
+    background-color: #ffcdd2; /* Highlight on hover */
+    transition: background-color 0.3s;
+  }
+
+  /* Avatar/Icon for Anime Girl style */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #a8d2ff; /* Cute blue color */
+    border: 3px solid #fff;
+    margin: auto;
+    box-shadow: 0 0 15px #a8d2ff;
+    position: relative;
+    /* Add a simple cute icon using a pseudo-element/emoji */
+    content: "🌸"; 
+    line-height: 40px;
+    font-size: 20px;
+    text-align: center;
+  }
+  /* Fallback for icon - using a simple div background */
+  .avatar::after {
+      content: '🎀'; /* Ribbon emoji */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+  }
+
+  /* Hidden Text Style */
+  .hidden {
+    color: #9c27b0; /* Light purple for "hidden" text */
+    font-style: italic;
+  }
+  
+  /* Note text - ADDED GLOW ANIMATION HERE */
+  .note {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+    color: #6a1b9a; /* Dark purple */
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 15px;
+    border-radius: 15px;
+    font-weight: 700;
+    
+    /* Glowing Effect */
+    animation: glow-purple 1.5s infinite alternate; 
+    border: 2px solid transparent;
+  }
+  
+  /* Keyframes for the glowing animation */
+  @keyframes glow-purple {
+      from {
+          box-shadow: 0 0 5px rgba(106, 27, 154, 0.4), 0 0 10px rgba(106, 27, 154, 0.1);
+          border-color: rgba(106, 27, 154, 0.3);
+      }
+      to {
+          box-shadow: 0 0 10px rgba(106, 27, 154, 0.8), 0 0 20px rgba(106, 27, 154, 0.4);
+          border-color: rgba(106, 27, 154, 0.8);
+      }
+  }
+
+
+  /* Status Text Color */
+  .status-text {
+    color: #ff9800; /* Yellow/Orange for Processing */
+    font-weight: 700;
+  }
+  
+  /* Audio Player Styling */
+  .audio-player-container {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+  }
+  .audio-player-container p {
+      margin: 0 0 5px 0;
+      font-weight: 700;
+      color: #d94a61;
+  }
+</style>
+</head>
+<body>
+
+<h1>✨ काली बूस्ट ऑर्डर ट्रैकर (Kali Boost Order Tracker) ✨</h1>
+
+<!-- Audio Player Section -->
+<div class="audio-player-container">
+    <p>संगीत यहाँ बजेगा (Music will play here)</p>
+    <!-- 
+      IMPORTANT: REPLACE THIS SRC URL WITH YOUR PUBLICLY HOSTED GOOGLE DRIVE MP3 LINK.
+      (ज़रूरी: इस SRC URL को अपनी सार्वजनिक Google Drive MP3 लिंक से बदलें।)
+    -->
+    <audio id="backgroundMusic" loop controls>
+        <!-- UPDATED: This now points to the muic.mp3 file you uploaded -->
+        <source src="http://googleusercontent.com/file_content/0" type="audio/mpeg">
+        आपके ब्राउज़र द्वारा ऑडियो समर्थित नहीं है। (Your browser does not support audio.)
+    </audio>
+</div>
+
+<div class="input-container">
+<input type="text" id="trackId" placeholder="ट्रैक ID दर्ज करें (Enter Track ID)" oninput="handleTyping()">
+<button id="checkStatusBtn" onclick="checkOrder()">💖 स्टेटस चेक करें (Check Status) 💖</button>
+</div>
+
+<div class="note">
+  ध्यान दें: पूरे हो चुके ऑर्डर नहीं दिखाए जाएँगे। (Completed orders will <strong>not</strong> be shown.)
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ट्रैक ID (Track ID)</th>
+      <th>यूज़र ID (User ID)</th>
+      <th>आइकन (Icon)</th>
+      <th>मात्रा (Quantity)</th>
+      <th>सर्विस (Service)</th>
+      <th>स्टेटस (Status)</th>
+    </tr>
+  </thead>
+  <tbody id="orderTable">
+  </tbody>
+</table>
+
+<script>
+// --- TONE.JS SETUP ---
+// 1. Synth for a soft, light typing sound (FM synthesis mimics a short key tap)
+const typingSynth = new Tone.Synth({
+    oscillator: { type: "square" },
+    envelope: { attack: 0.001, decay: 0.05, sustain: 0.01, release: 0.05 }
+}).toDestination();
+typingSynth.volume.value = -15; // Set volume low
+
+// 2. Sampler for a clean, light click sound
+const clickSynth = new Tone.MembraneSynth().toDestination();
+clickSynth.volume.value = -10; 
+// ---------------------
+
+// --- MUSIC PLAYER SETUP ---
+const backgroundMusic = document.getElementById('backgroundMusic');
+let typingTimer;
+let isMusicPlaying = false;
+
+// Function to handle playing the music
+function playMusic() {
+    // Only try to play if it's currently paused or stopped
+    if (backgroundMusic.paused) {
+        // Attempt to play, catching the common promise error if user interaction is missing
+        backgroundMusic.play().then(() => {
+            isMusicPlaying = true;
+            console.log("Music Resumed.");
+        }).catch(error => {
+            console.log("Auto-play blocked, waiting for user interaction:", error);
+            isMusicPlaying = false; // Still waiting for user gesture
+        });
+    }
+}
+
+// Function to handle pausing the music
+function pauseMusic() {
+    if (isMusicPlaying && !backgroundMusic.paused) {
+        backgroundMusic.pause();
+        isMusicPlaying = false;
+        console.log("Music Paused.");
+    }
+}
+
+// Tone.js and Music Player requires the audio context to be started on the first user interaction.
+document.documentElement.addEventListener('mousedown', () => {
+    if (Tone.context.state !== 'running') {
+        Tone.start();
+    }
+    // Try to start background music on first interaction
+    playMusic();
+});
+
+// --- TYPING AND CLICK PAUSE/RESUME LOGIC ---
+
+const trackIdInput = document.getElementById('trackId');
+const checkStatusBtn = document.getElementById('checkStatusBtn');
+
+// 1. TYPING PAUSE/RESUME
+function handleTyping() {
+    playTypingSound(); // Play the typing sound effect
+
+    // Pause the music immediately when typing starts
+    pauseMusic();
+
+    // Clear the previous resume timer
+    clearTimeout(typingTimer);
+
+    // Set a new timer: if no typing occurs for 1500ms (1.5 seconds), resume music
+    typingTimer = setTimeout(() => {
+        playMusic();
+    }, 1500); // Resume after 1.5 seconds of inactivity
+}
+
+// 2. CLICK PAUSE/RESUME (Button)
+checkStatusBtn.addEventListener('mousedown', () => {
+    // Pause the music on button press (mousedown)
+    pauseMusic();
+});
+
+checkStatusBtn.addEventListener('mouseup', () => {
+    // Resume music quickly after button release (mouseup)
+    // This allows the music to resume after the "click time" is over
+    playMusic();
+});
+
+
+// --- ORIGINAL TRACKER FUNCTIONS ---
+
+function playTypingSound() {
+    // Play a random, high-pitched note for a cute typing tap effect
+    const notes = ["C5", "D5", "E5"];
+    const randomNote = notes[Math.floor(Math.random() * notes.length)];
+    typingSynth.triggerAttackRelease(randomNote, "32n");
+}
+
+const fakeOrders = {
+  "SMM1001": "Completed",
+  "SMM1002": "Processing",
+  "SMM1003": "Processing",
+  "SMM1004": "Completed",
+  "SMM1005": "Processing"
+};
+
+function checkOrder() {
+  // --- TONE.JS CLICK SOUND (for button) ---
+  // Trigger the click tone
+  clickSynth.triggerAttackRelease("C4", "16n");
+  // ----------------------------------------
+
+  // Clear previous rows
+  document.getElementById('orderTable').innerHTML = '';
+
+  const trackId = document.getElementById('trackId').value.trim();
+  if(trackId === "") {
+    // Display message in custom alert
+    alert("कृपया ट्रैक ID दर्ज करें! (Please enter a Track ID!)"); 
+    document.getElementById('trackId').style.borderColor = 'red';
+    setTimeout(() => document.getElementById('trackId').style.borderColor = '#ff5c77', 1000);
+    return;
+  }
+
+  const status = fakeOrders[trackId] || "Processing";
+  if(status === "Completed") {
+    // Display message in console or a temporary note
+    console.log("Track ID: " + trackId + " is completed and hidden.");
+    alert("ट्रैक ID: " + trackId + " पूरी हो चुकी है और अब छिपी हुई है। (Completed and hidden)");
+    return;
+  }
+
+  const tableBody = document.getElementById('orderTable');
+
+  const row = document.createElement('tr');
+
+  const tdId = document.createElement('td'); tdId.innerText = trackId; row.appendChild(tdId);
+  const tdUser = document.createElement('td'); tdUser.innerText = "Anonymous-Chan / Private"; row.appendChild(tdUser);
+
+  const tdAvatar = document.createElement('td');
+  const avatar = document.createElement('div'); avatar.className = "avatar";
+  tdAvatar.appendChild(avatar); row.appendChild(tdAvatar);
+
+  const tdQuantity = document.createElement('td'); tdQuantity.innerText = "Hidden ♡"; tdQuantity.className = "hidden"; row.appendChild(tdQuantity);
+  const tdService = document.createElement('td'); tdService.innerText = "Secret Service"; tdService.className = "hidden"; row.appendChild(tdService);
+
+  const tdStatus = document.createElement('td'); tdStatus.innerText = "Processing..."; tdStatus.className = "status-text"; row.appendChild(tdStatus);
+
+  tableBody.appendChild(row);
+
+  let dots = 0;
+  const interval = setInterval(() => {
+    dots = (dots + 1) % 4;
+    tdStatus.innerText = "Processing" + ".".repeat(dots);
+  }, 500);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    tdStatus.innerText = "Order is still processing... ଘ(੭*ˊᵕˋ)੭* ੈ♡‧₊˚";
+  }, 7000);
+}
+
+// Helper function to replace default alert with a themed temporary message box
+function alert(message) {
+    const alertBox = document.createElement('div');
+    alertBox.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd0 100%);
+        color: #d94a61;
+        padding: 20px 30px;
+        border-radius: 15px;
+        border: 3px solid #ff5c77;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        font-family: 'M PLUS Rounded 1c', sans-serif;
+        font-weight: 700;
+        z-index: 1000;
+        animation: fadeInOut 4s forwards;
+    `;
+    alertBox.innerText = message;
+    document.body.appendChild(alertBox);
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    setTimeout(() => {
+        alertBox.remove();
+        style.remove();
+    }, 4000);
+}
+</script>
+
+</body>
+</html>
